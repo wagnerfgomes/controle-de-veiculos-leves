@@ -62,7 +62,7 @@ O caminho da pasta de rede vai em `config.toml` ao lado do `.exe`, não compilad
 
 ## 2. Schema
 
-Arquivos em `migrations/`, aplicados em ordem na abertura. `PRAGMA user_version` guarda o nível aplicado; backup obrigatório antes de qualquer migração.
+Arquivos em `src-tauri/migracoes/`, aplicados em ordem na abertura. `PRAGMA user_version` guarda o nível aplicado; backup obrigatório antes de qualquer migração.
 
 ### `001_inicial.sql`
 
