@@ -16,7 +16,7 @@ Contrato de implementação. Escrito para ser executável por um desenvolvedor o
 | Cadastro de frota e motorista | pelo próprio formulário de abertura de viagem |
 | Bloqueio de viagem aberta | veículo **e** motorista |
 | Hodômetro | presente desde o início, opcional no preenchimento |
-| Modo somente leitura | não existe; relatório é emitido pelo operador |
+| Modo de consulta somente leitura | não existe como funcionalidade; relatório é emitido pelo operador. O modo degradado da seção 4 é outra coisa: estado de falha, não de uso |
 
 ### Stack
 
@@ -195,7 +195,7 @@ pub struct ErroApp {
 | `NAO_ENCONTRADO` | id inexistente |
 | `VALIDACAO` | regra de campo violada; `detalhe` diz qual |
 | `BANCO` | falha de SQLite |
-| `SESSAO_PERDIDA` | o lock foi perdido durante a sessão |
+| `SESSAO_PERDIDA` | o lock foi perdido durante a sessão; o app está em modo degradado e recusa escrita |
 | `CONEXAO_PERDIDA` | erro de I/O: o servidor de arquivos caiu |
 
 ### Gestão
@@ -349,7 +349,9 @@ O handle fica vivo na struct de estado do app pela sessão inteira. O Windows o 
 
 **Tomada de posse** só é oferecida com heartbeat parado há mais de 10 minutos. Exige digitar `CONFIRMAR`, registra em `auditoria` com `acao = 'TOMADA_LOCK'` e grava quem tomou de quem. Sem esse atraso, vira o botão que todo mundo aperta.
 
-Se o heartbeat falhar 3 vezes seguidas durante a sessão, o app entra em modo somente leitura e avisa que a rede caiu e o lock pode ter sido perdido. Como o banco é o arquivo da rede, nesse estado não há como gravar de qualquer forma, o aviso serve para o usuário não continuar digitando achando que está registrando.
+Se o heartbeat falhar 3 vezes seguidas durante a sessão, o app entra em **modo degradado**: recusa toda escrita com `SESSAO_PERDIDA` e avisa que a rede caiu e o lock pode ter sido perdido. Como o banco é o arquivo da rede, nesse estado não há como gravar de qualquer forma; o aviso serve para o usuário não continuar digitando achando que está registrando.
+
+Modo degradado é estado de falha, não funcionalidade. Não o confunda com a linha "modo de consulta somente leitura" da seção 1, que não existe: ninguém abre o sistema nesse modo, só cai nele. Sair exige `reconectar()`, que reabre a conexão, readquire o lock e roda `integrity_check`.
 
 ### Por que não há sincronismo
 
