@@ -108,6 +108,7 @@ CREATE TABLE saidas (
   observacao   TEXT,
   excluida_em  TEXT,
   excluida_por TEXT,
+  excluida_motivo TEXT,
   criado_em    TEXT NOT NULL DEFAULT (datetime('now','localtime')),
   atualizado_em TEXT,
   CHECK (dt_chegada IS NULL OR dt_chegada > dt_saida),
@@ -266,7 +267,7 @@ encerrar_saida(id: i64,
                confirmado_avisos: bool) -> Saida
 
 editar_saida(id: i64, ...) -> Saida
-excluir_saida(id: i64, motivo: Option<String>) -> ()   // lógica
+excluir_saida(id: i64, motivo: Option<String>) -> ()   // lógica; grava excluida_motivo
 
 listar_saidas_abertas() -> Vec<SaidaAberta>
 listar_saidas(filtro: FiltroSaidas) -> Vec<Saida>
@@ -445,7 +446,7 @@ O caminho rápido tem que ser o de um clique: a alta demanda é o que produz as 
 
 ### Histórico
 
-Tabela igual à de hoje, com filtros por período, turno, veículo e motorista. Editar e excluir por linha. Exportar CSV. Viagens excluídas aparecem só com o filtro **"mostrar excluídas"** ligado, riscadas.
+Tabela igual à de hoje, com filtros por período, turno, veículo e motorista. Editar e excluir por linha. Exportar CSV. Viagens excluídas aparecem só com o filtro **"mostrar excluídas"** ligado, riscadas e com o motivo da exclusão.
 
 ### Gestão
 
@@ -516,7 +517,9 @@ O limite de 14 h vem da base antiga: existem turnos legítimos de monitor com 10
 
 ### Exclusão
 
-Sempre lógica: grava `excluida_em` e `excluida_por`, some das telas e dos relatórios, sai do índice único (liberando o veículo). O registro anterior completo vai para `auditoria` em JSON. **Não existe exclusão física em nenhum caminho da aplicação.**
+Sempre lógica: grava `excluida_em`, `excluida_por` e `excluida_motivo`, some das telas e dos relatórios, sai do índice único (liberando o veículo). O registro anterior completo vai para `auditoria` em JSON. **Não existe exclusão física em nenhum caminho da aplicação.**
+
+O motivo é opcional na assinatura, mas o Histórico o exibe na linha riscada. Exclusão sem motivo é a que ninguém consegue explicar três meses depois.
 
 ---
 
