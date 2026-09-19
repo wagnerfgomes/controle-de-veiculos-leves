@@ -138,7 +138,6 @@ CREATE TABLE auditoria (
 CREATE TABLE config (chave TEXT PRIMARY KEY, valor TEXT);
 
 INSERT INTO config (chave, valor) VALUES
-  ('versao_schema', '1'),
   ('ultimo_backup_em', ''),
   ('ultimo_relatorio_periodo', ''),
   ('data_corte', date('now','localtime'));
