@@ -159,6 +159,18 @@ PRAGMA user_version = 2;
 
 > Conferir esta lista com o setor antes de rodar. Foi montada por frequência no HTML antigo, não por inventário real.
 
+### A tabela `config`
+
+Três chaves, todas escritas pelo Rust:
+
+| Chave | Função |
+| --- | --- |
+| `ultimo_backup_em` | data-hora do último `VACUUM INTO` concluído, exibida na barra de status |
+| `ultimo_relatorio_periodo` | último mês fechado (`AAAA-MM`) cujo relatório já foi gerado. Vazio numa base nova |
+| `data_corte` | data da primeira abertura do sistema. É o piso da varredura de relatórios pendentes da seção 4: numa base nova `ultimo_relatorio_periodo` está vazio, e sem piso o app não sabe até onde voltar |
+
+O nível de schema aplicado mora em `PRAGMA user_version`, e só lá. Não duplique esse número numa chave de `config`. As duas cópias divergem na primeira migração escrita com pressa, e `user_version` é a que o SQLite honra.
+
 ### `nome_norm`
 
 Gerado em Rust, não em SQL: `trim` → maiúsculas → remove acentos (decomposição NFD, descarta marcas combinantes) → colapsa espaços múltiplos. `"José  Carlos "` e `"JOSE CARLOS"` produzem a mesma chave, e o `UNIQUE` recusa o segundo cadastro.
@@ -378,7 +390,7 @@ Rotação, executada após cada backup:
 
 ### Relatórios automáticos
 
-Na abertura, comparar `config.ultimo_relatorio_periodo` com o mês anterior ao corrente. Se houver período fechado sem relatório, gerar os dois tipos em `relatorios\AAAA-MM\` e atualizar a chave. É o que cobre a queda de energia: mesmo que ninguém tenha fechado o sistema, o relatório sai no próximo login.
+Na abertura, varrer do mês seguinte a `config.ultimo_relatorio_periodo` até o mês anterior ao corrente, gerando os dois tipos em `relatorios\AAAA-MM\` para cada mês fechado que faltar e atualizando a chave a cada um. Numa base nova a chave está vazia: o piso da varredura passa a ser o mês de `config.data_corte`, senão o app tentaria voltar indefinidamente. É o que cobre a queda de energia: mesmo que ninguém tenha fechado o sistema, e mesmo que o sistema fique meses parado, os relatórios pendentes saem no próximo login.
 
 Ao fechar, gerar o relatório do período corrente por cima do anterior do mesmo mês.
 
@@ -671,6 +683,8 @@ O que é difícil de reproduzir à mão, e por isso precisa de teste:
 | Levenshtein de "ANGELO JUNIOR" vs "ANJELO JUNIOR" | devolve `SEMELHANTE` |
 | `fundir_motoristas` | contagem de saídas preservada |
 | Rotação de backup com 40 arquivos sintéticos | mantém a política da seção 4 |
+| Varredura de relatórios com 3 meses pendentes | gera os 3, do mais antigo ao mais novo |
+| Varredura numa base nova, `ultimo_relatorio_periodo` vazio | não volta além do mês de `data_corte` |
 | Migração de schema vazio → v2 | `user_version = 2`, seed aplicado |
 
 Tela se testa olhando. Não perseguir cobertura ampla.
