@@ -52,6 +52,7 @@ Não substitua por `SELECT` prévio de verificação. O `SELECT` não impede a c
 
 ```
 docs/SPEC.md            contrato de implementação (ver abaixo)
+docs/PLANO.md           ordem de execução em fases, gate da Fase 0 e decisões pendentes
 src/                    React + TypeScript (Vite). Só UI e validação de retorno imediato.
   telas/                uma tela por fluxo (saída, retorno, cadastros, relatórios)
   componentes/          reutilizáveis, sem regra de negócio
