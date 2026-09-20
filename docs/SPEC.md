@@ -450,7 +450,9 @@ trait Lock {
 #[cfg(unix)]    LockDesenvolvimento  // flock advisory, só para o dev rodar
 ```
 
-O stub de Linux é obrigado a se denunciar: aviso no log na inicialização, indicador na barra de status e `compile_error!` em build de release sob `#[cfg(all(unix, not(debug_assertions)))]`. Stub silencioso é como se descobre em produção que o lock nunca existiu.
+O stub de Linux é obrigado a se denunciar: aviso no log na inicialização, indicador na barra de status e recusa de compilar em release, sob `#[cfg(all(unix, not(debug_assertions), not(feature = "demo")))]` com `compile_error!`. Stub silencioso é como se descobre em produção que o lock nunca existiu.
+
+A exceção é a feature `demo`, que existe para a apresentação rodar de um binário Linux e não de `tauri dev` com terminal aberto. `cargo build --release --features demo` é o **único** caminho para um release em Linux, e ele força `modo = "demonstracao"` em tempo de compilação: sem escolha de `config.toml`, sem chance de apontar para dado real. Um release de Linux que não seja demo não existe.
 
 `flock` advisory não é equivalente ao handle exclusivo: protege contra outra instância na mesma máquina e nada além disso. Nenhum teste de concorrência conta se rodado em Linux; os itens de lock da seção 8 só valem em Windows, contra o compartilhamento real.
 
