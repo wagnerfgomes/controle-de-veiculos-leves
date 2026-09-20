@@ -1,0 +1,10 @@
+# Dados de produção: ficam na pasta de rede, nunca versionados
+dados/
+
+# Worktrees e estado local do Claude Code
+.claude/
+
+# Build
+node_modules/
+dist/
+src-tauri/target/
