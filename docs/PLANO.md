@@ -195,12 +195,9 @@ Roteiro sugerido de apresentação, na ordem em que convence: Painel com carros 
 
 ## Fase 0 do SPEC — validação da arquitetura de rede
 
-**Onde roda:** duas máquinas Windows do setor, contra o compartilhamento real.
-**Depende de:** o acesso que a Fase 8 destrava. O item `martelo` pode e deve acontecer antes, ver "o preço dessa inversão".
+Continua sendo a Fase 0 do SPEC. O que mudou foi **quando** ela cabe no calendário, e que ela se parte em duas: o que dá para fazer hoje e o que depende da autorização.
 
-Continua sendo a Fase 0 do SPEC: o que mudou foi quando ela cabe no calendário, não o que ela vale. **Nada da Fase 9 começa antes do veredito.**
-
-Binário descartável em Rust **sem Tauri**, um CLI de umas 200 linhas com `rusqlite` e o lock. Sem Tauri porque um CLI cross-compila daqui do Arch com `x86_64-pc-windows-gnu` mais `mingw-w64`, e assim o teste não exige montar ambiente de desenvolvimento em máquina do setor.
+O binário é o mesmo nos dois casos: descartável, Rust **sem Tauri**, um CLI de umas 200 linhas com `rusqlite` e o lock. Sem Tauri porque um CLI cross-compila daqui do Arch com `x86_64-pc-windows-gnu` mais `mingw-w64`, e assim o teste não exige montar ambiente de desenvolvimento em máquina do setor.
 
 | Modo | O que faz |
 | --- | --- |
@@ -209,15 +206,32 @@ Binário descartável em Rust **sem Tauri**, um CLI de umas 200 linhas com `rusq
 | `lock` | tenta adquirir o lock, informa sucesso ou falha, segura o handle até o Enter |
 | `tempo` | mede abertura da conexão mais os quatro PRAGMA, 20 repetições |
 
-Roteiro, que é o da seção 8 do SPEC, agora com o item zero na frente:
+### Fase 0a — sonda de política e estresse antecipado
 
-0. Copiar um `.exe` não assinado para o caminho UNC e abri-lo nas máquinas do setor. Bloqueou, pare: o modelo de entrega inteiro depende disso.
-1. `martelo` rodando, puxar o cabo no meio da escrita, reconectar, `checar`. **20 vezes, variando o momento da interrupção, 20 aprovações.** Planilha com momento e resultado de cada uma.
-2. `lock` nas duas máquinas ao mesmo tempo: exatamente uma obtém.
-3. Matar o processo detentor: a outra obtém sem intervenção.
-4. `tempo` com o antivírus ativo. Registrar a média.
+**Pode começar hoje.** Não depende de nenhuma outra fase, e é o melhor uso de um dia de trabalho no projeto inteiro.
 
-**Se o item 1 reprovar:** a seção 4 do SPEC é reescrita para cópia local com sincronismo antes de qualquer linha da Fase 9. Fases 1 a 8 sobrevivem, e o estrago fica contido em `conexao.rs`, `lock.rs` e `sessao.rs`.
+Existe uma pasta de rede com escrita já disponível. A política da empresa sobre executáveis é desconhecida, e é justamente por isso que esta fase vale tanto: o CLI responde duas perguntas de uma vez.
+
+**Pergunta 1, a que ninguém fez ainda: um `.exe` não assinado roda numa máquina do setor?** Copiar o CLI para o disco local ou um pendrive e abrir. Três desfechos:
+
+- Roda. Segue para a pergunta 2, e você já sabe que o binário em si não é o problema.
+- Bloqueado por SmartScreen, com opção de "Executar assim mesmo". Roda, mas a versão final precisa de assinatura ou de exceção da TI, e isso entra na conversa da apresentação.
+- Bloqueado por política (AppLocker, WDAC ou equivalente), sem contorno. **Descoberta mais importante do projeto**, e ela chegou antes de escrever uma linha do app. O modelo de entrega inteiro passa a depender da TI desde o primeiro dia, e a apresentação muda de assunto: deixa de ser "olha o sistema" e passa a ser "olha o sistema, e preciso disto para entregá-lo".
+
+**Pergunta 2, o teste de estresse:** `martelo` rodando contra o banco na pasta compartilhada, puxar o cabo de rede no meio da escrita, reconectar, `checar`. **20 vezes, variando o momento da interrupção, 20 aprovações.** Planilha com momento e resultado de cada uma. Mais o `tempo`, com o antivírus ativo.
+
+Reprovou o estresse, pare o desenvolvimento da Fase 4 em diante: a seção 4 do SPEC é reescrita para cópia local com sincronismo antes de qualquer outra coisa. Fases 1, 2 e 3 seguem válidas.
+
+Se a pergunta 1 impedir rodar qualquer executável no setor, sobra um teste fraco: rodar o `martelo` do próprio notebook Linux contra a mesma pasta, por CIFS. **Serve só como teste negativo.** Falhando ali, falha em Windows com folga. Passando, não prova nada, porque o cliente SMB do Windows não é o do Linux e o comportamento de cache e de lock é outro. Não marque o critério da seção 8 com esse resultado.
+
+### Fase 0b — o que depende da autorização
+
+Depois da apresentação, com caminho de rede definitivo em mãos:
+
+0. Copiar um `.exe` não assinado para o **caminho UNC** e abri-lo nas máquinas do setor. Rodar do disco local e rodar de um UNC são coisas diferentes: a zona de segurança muda, e a segunda costuma ser mais restrita. Bloqueou, pare: o modelo de entrega depende disso.
+1. `lock` nas duas máquinas ao mesmo tempo: exatamente uma obtém.
+2. Matar o processo detentor pelo Gerenciador de Tarefas: a outra obtém sem intervenção.
+3. Repetir `tempo` contra a pasta definitiva, que pode ter latência diferente da usada na Fase 0a.
 
 ---
 
