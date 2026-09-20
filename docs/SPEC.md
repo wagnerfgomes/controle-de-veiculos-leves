@@ -411,6 +411,26 @@ Se o heartbeat falhar 3 vezes seguidas durante a sessão, o app entra em **modo 
 
 Modo degradado é estado de falha, não funcionalidade. Não o confunda com a linha "modo de consulta somente leitura" da seção 1, que não existe: ninguém abre o sistema nesse modo, só cai nele. Sair exige `reconectar()`, que reabre a conexão, readquire o lock e roda `integrity_check`.
 
+### O lock fora do Windows
+
+`share_mode(0)` é API do Windows e não compila em Linux, que é onde o desenvolvimento acontece. O módulo expõe um trait e duas implementações:
+
+```rust
+trait Lock {
+    fn adquirir(caminho: &Path) -> Result<Self, ErroApp> where Self: Sized;
+    fn heartbeat(&self)         -> Result<(), ErroApp>;
+    fn info(caminho: &Path)     -> Result<Option<InfoLock>, ErroApp>;
+    fn liberar(self);
+}
+
+#[cfg(windows)] LockWindows          // share_mode(0). É o que vale em produção.
+#[cfg(unix)]    LockDesenvolvimento  // flock advisory, só para o dev rodar
+```
+
+O stub de Linux é obrigado a se denunciar: aviso no log na inicialização, indicador na barra de status e `compile_error!` em build de release sob `#[cfg(all(unix, not(debug_assertions)))]`. Stub silencioso é como se descobre em produção que o lock nunca existiu.
+
+`flock` advisory não é equivalente ao handle exclusivo: protege contra outra instância na mesma máquina e nada além disso. Nenhum teste de concorrência conta se rodado em Linux; os itens de lock da seção 8 só valem em Windows, contra o compartilhamento real.
+
 ### Por que não há sincronismo
 
 O banco é o arquivo da rede. **Não existe cópia local, thread de sincronismo, `VACUUM INTO` de volta, debounce nem fila de escrita. Nada disso deve ser implementado.**
