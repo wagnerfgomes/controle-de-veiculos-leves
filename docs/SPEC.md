@@ -16,6 +16,7 @@ Contrato de implementação. Escrito para ser executável por um desenvolvedor o
 | Cadastro de frota e motorista | **manual**, por CRUD na tela de Gestão ou pelo formulário de abertura de viagem. Sem seed: a base nasce vazia |
 | Bloqueio de viagem aberta | veículo **e** motorista |
 | Hodômetro | presente desde o início, opcional no preenchimento |
+| Apresentação do projeto | **modo demonstração**, com base fictícia local. A liberação da pasta de rede e a autorização da TI só vêm depois de ver o sistema rodando |
 | Modo de consulta somente leitura | não existe como funcionalidade; relatório é emitido pelo operador. O modo degradado da seção 4 é outra coisa: estado de falha, não de uso |
 
 ### Stack
@@ -322,6 +323,7 @@ struct EstadoSessao {
     ultimo_backup: Option<String>,
     user_version: i64,               // lido do PRAGMA, nunca de config
     caminho_dados: String,           // o que a barra de status mostra
+    modo: Modo,                      // Producao | Demonstracao
 }
 
 struct Kpis {
@@ -384,6 +386,27 @@ struct LinhaRelatorio {
 5. Aplicar migrações pendentes, com backup antes de cada uma.
 6. Gerar relatórios pendentes (abaixo).
 7. Iniciar as tarefas de fundo: heartbeat 30 s e backup 4 h.
+
+### Modo demonstração
+
+Existe porque a burocracia é sequencial: sem apresentar o sistema rodando não se consegue a pasta de rede, e sem pasta de rede o sistema não roda. O modo demonstração quebra esse ciclo.
+
+`config.toml`, ao lado do executável:
+
+```toml
+caminho_dados = "\\\\servidor\\logistica\\veiculos-leves"
+modo          = "producao"      # ou "demonstracao"
+```
+
+Em `demonstracao`:
+
+- `caminho_dados` é ignorado e o banco vai para `.\dados-demo`, ao lado do executável, criada se não existir. Nenhuma dependência de rede, nenhum caminho UNC, roda de pendrive.
+- O banco é **recriado do zero a cada abertura** e populado com dados fictícios: veículos, motoristas e viagens espalhadas por dois meses, umas abertas e outras fechadas, para que Painel, KPIs, Histórico e os dois relatórios tenham o que mostrar. Tela vazia não apresenta nada.
+- Faixa permanente e visível na interface: **MODO DEMONSTRAÇÃO, dados fictícios, tudo é apagado ao reabrir**. Sem isso alguém registra viagem de verdade na demo.
+- Backup automático, rotação e relatórios automáticos desligados. Emissão manual de relatório continua, que é o que se quer mostrar.
+- **O lock continua ativo.** Abrir duas instâncias na mesma máquina exibe a tela de bloqueio, e essa é justamente uma das coisas que convencem na apresentação.
+
+O modo demonstração não é o modo de desenvolvimento: em desenvolvimento o modo é `producao` com `caminho_dados` apontando para uma pasta local, e aí o banco persiste entre execuções.
 
 ### Lock
 
