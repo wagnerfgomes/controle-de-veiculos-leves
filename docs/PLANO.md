@@ -35,6 +35,8 @@ Fase 9  endurecimento de rede           (depende do veredito)
 Fase 10 build Windows, empacotamento, homologação e piloto
 ```
 
+**Comece pela Fase 0a**, que está descrita lá embaixo por causa da numeração do SPEC, não por ordem de execução. Ela roda em paralelo, não depende de nada e responde a maior incerteza do projeto com um dia de trabalho.
+
 ### O preço dessa inversão, e como pagá-lo barato
 
 Construir o app inteiro antes de validar a rede significa que uma reprovação na Fase 0 chega depois de muito código escrito. É risco real e não dá para eliminar, só para conter em três movimentos:
