@@ -15,21 +15,24 @@ Só que a Fase 0 exige caminho de rede definitivo e autorização para rodar um 
 Então o plano inverte: **construir até a apresentação, apresentar, e só então validar a rede.**
 
 ```
+Fase 0a  sonda de política e estresse     (Windows do setor, pasta já acessível)
+         ═══ em paralelo, pode começar hoje, não depende de nenhuma outra ═══
+
 Fase 1  scaffold e config.toml          (Linux)
 Fase 2  fundação do banco               (Linux)
 Fase 3  domínio puro                    (Linux)
-Fase 4  sessão e lock local             (Linux para compilar, Windows para valer)
+Fase 4  sessão e lock local             (Linux)
 Fase 5  comandos                        (Linux)
 Fase 6  telas                           (Linux)
 Fase 7  relatórios manuais              (Linux)
-Fase 8  modo demonstração e apresentação  ◄── destrava tudo que vem depois
+Fase 8  demonstração no notebook          ◄── destrava tudo que vem depois
         │
-        └─► acesso à pasta de rede e liberação da TI
+        └─► aprovação, caminho de rede definitivo e liberação da TI
                 │
-Fase 0 do SPEC  validação da arquitetura de rede   ◄── o gate, agora aqui
+Fase 0b  item zero no UNC e lock em duas máquinas
                 │
 Fase 9  endurecimento de rede           (depende do veredito)
-Fase 10 empacotamento, homologação e piloto
+Fase 10 build Windows, empacotamento, homologação e piloto
 ```
 
 ### O preço dessa inversão, e como pagá-lo barato
@@ -37,7 +40,7 @@ Fase 10 empacotamento, homologação e piloto
 Construir o app inteiro antes de validar a rede significa que uma reprovação na Fase 0 chega depois de muito código escrito. É risco real e não dá para eliminar, só para conter em três movimentos:
 
 1. **Isolar tudo que depende de rede em três arquivos**: `src-tauri/src/db/conexao.rs`, `src-tauri/src/lock.rs` e `src-tauri/src/sessao.rs`. Reprovando a Fase 0, o desenho de cópia local com sincronismo é reescrito nesses três e em mais nada. Schema, domínio, comandos, telas e relatórios não sabem de onde vem o arquivo do banco, e não podem saber.
-2. **Rodar o teste de estresse antes da autorização formal.** O `martelo` da Fase 0 não precisa que o `.exe` more no compartilhamento: precisa que o **banco** esteja lá. Rodando o CLI do pendrive ou do disco local contra qualquer pasta de rede em que você já tenha escrita hoje, o item mais perigoso da Fase 0 sai sem pedir nada a ninguém. É de longe o jeito mais barato de derrubar esse risco, e pode acontecer em paralelo com qualquer fase.
+2. **Rodar o teste de estresse antes da autorização formal.** O `martelo` da Fase 0 não precisa que o `.exe` more no compartilhamento: precisa que o **banco** esteja lá. Existe uma pasta de rede com escrita já disponível, então o CLI pode rodar do disco local ou de pendrive contra ela. É a Fase 0a, e derruba cedo o maior risco do projeto.
 3. **Não implementar os dois desenhos.** O SPEC proíbe, e código morto de sincronismo é o que reaparece ligado por engano seis meses depois.
 
 ### Definição de pronto
