@@ -13,7 +13,7 @@ Contrato de implementação. Escrito para ser executável por um desenvolvedor o
 | Acesso ao banco | **direto na pasta de rede**, sem cópia local |
 | Validação desse acesso | teste de estresse na Fase 0, antes de qualquer funcionalidade |
 | Dados históricos | não migrados; base nova |
-| Cadastro de frota e motorista | pelo próprio formulário de abertura de viagem |
+| Cadastro de frota e motorista | **manual**, por CRUD na tela de Gestão ou pelo formulário de abertura de viagem. Sem seed: a base nasce vazia |
 | Bloqueio de viagem aberta | veículo **e** motorista |
 | Hodômetro | presente desde o início, opcional no preenchimento |
 | Modo de consulta somente leitura | não existe como funcionalidade; relatório é emitido pelo operador. O modo degradado da seção 4 é outra coisa: estado de falha, não de uso |
@@ -146,19 +146,11 @@ INSERT INTO config (chave, valor) VALUES
 PRAGMA user_version = 1;
 ```
 
-### `002_seed_frotas.sql`
+### Sem seed
 
-Os 18 códigos com três ou mais ocorrências no sistema antigo. Só a frota; modelo e placa entram pela tela de gestão quando alguém tiver tempo.
+A base nasce vazia. Frota e motorista são cadastrados à mão, por CRUD, e a viagem é atribuída depois. Não existe migração de seed, e o schema para em `user_version = 1`.
 
-```sql
-INSERT INTO veiculos (frota) VALUES
-  ('907015'),('907016'),('907017'),('907018'),('907021'),('907022'),
-  ('607035'),('607036'),('607038'),('950174'),('950167'),('907009'),
-  ('607022'),('601038'),('907013'),('907038'),('607037'),('950173');
-PRAGMA user_version = 2;
-```
-
-> Conferir esta lista com o setor antes de rodar. Foi montada por frequência no HTML antigo, não por inventário real.
+Importar a lista de frotas do sistema antigo importaria também o lixo dele, que é justamente o que este projeto existe para não repetir.
 
 ### A tabela `config`
 
@@ -688,7 +680,7 @@ O que é difícil de reproduzir à mão, e por isso precisa de teste:
 | Rotação de backup com 40 arquivos sintéticos | mantém a política da seção 4 |
 | Varredura de relatórios com 3 meses pendentes | gera os 3, do mais antigo ao mais novo |
 | Varredura numa base nova, `ultimo_relatorio_periodo` vazio | não volta além do mês de `data_corte` |
-| Migração de schema vazio → v2 | `user_version = 2`, seed aplicado |
+| Migração de schema vazio → v1 | `user_version = 1`, tabelas e os dois índices únicos parciais criados |
 
 Tela se testa olhando. Não perseguir cobertura ampla.
 
