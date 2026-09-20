@@ -259,7 +259,7 @@ encerrar_saida(id: i64,
                confirmado_avisos: bool) -> Saida
 
 editar_saida(id: i64, ...) -> Saida
-excluir_saida(id: i64, motivo: Option<String>) -> ()   // lógica; grava excluida_motivo
+excluir_saida(id: i64, motivo: String) -> ()   // lógica; grava excluida_motivo
 
 listar_saidas_abertas() -> Vec<SaidaAberta>
 listar_saidas(filtro: FiltroSaidas) -> Vec<Saida>
@@ -509,9 +509,14 @@ O limite de 14 h vem da base antiga: existem turnos legítimos de monitor com 10
 
 ### Exclusão
 
+| Caso | Comportamento |
+| --- | --- |
+| `motivo` vazio ou com menos de 3 caracteres | recusa `VALIDACAO` |
+| Viagem já excluída | recusa `VALIDACAO` |
+
 Sempre lógica: grava `excluida_em`, `excluida_por` e `excluida_motivo`, some das telas e dos relatórios, sai do índice único (liberando o veículo). O registro anterior completo vai para `auditoria` em JSON. **Não existe exclusão física em nenhum caminho da aplicação.**
 
-O motivo é opcional na assinatura, mas o Histórico o exibe na linha riscada. Exclusão sem motivo é a que ninguém consegue explicar três meses depois.
+O motivo é **obrigatório**: `motivo: String`, recusado vazio ou com menos de 3 caracteres com `VALIDACAO`. O Histórico o exibe na linha riscada. Exclusão sem motivo é a que ninguém consegue explicar três meses depois, e o campo só é preenchido se a assinatura obrigar.
 
 ---
 
