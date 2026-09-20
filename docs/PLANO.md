@@ -175,21 +175,27 @@ CSV com BOM UTF-8 e separador `;`. PDF pela impressão do WebView. `:ate` exclus
 
 ---
 
-## Fase 8 — modo demonstração e apresentação
+## Fase 8 — demonstração no notebook
 
-**Onde roda:** onde a apresentação acontecer. **Depende de:** Fases 4 a 7.
+**Onde roda:** seu notebook Linux. **Depende de:** Fases 4 a 7.
 
-É o marco que destrava o projeto inteiro. Entregável não é código, é autorização.
+É o marco que destrava o projeto inteiro. O entregável não é código, é autorização. Aprovando, aí sim o app vai para Windows, na Fase 10.
 
-- `modo = "demonstracao"` no `config.toml`, conforme a seção 4 do SPEC: banco em `.\dados-demo` ao lado do executável, recriado do zero a cada abertura.
-- **Gerador de base fictícia**: veículos, motoristas e viagens espalhadas por dois meses, umas abertas e outras fechadas, uma passando de 24 h para a linha vermelha aparecer, alguns nomes propositalmente parecidos para demonstrar o alerta de duplicata. Tela vazia não apresenta nada, e dado fictício mal feito apresenta pior ainda.
+- Build com `cargo build --release --features demo`, o único release de Linux que o SPEC permite. **Não apresente de `npm run tauri dev`**: terminal aberto na projeção, recarga quente disparando no meio da fala e risco de erro de compilação ao vivo. Binário pronto, duplo clique, acabou.
+- A feature `demo` força `modo = "demonstracao"`: banco em `.\dados-demo`, recriado do zero a cada abertura.
+- **Gerador de base fictícia**, que é o entregável de verdade desta fase: veículos, motoristas e viagens espalhadas por dois meses, umas abertas e outras fechadas, uma passando de 24 h para a linha vermelha aparecer, alguns nomes propositalmente parecidos para o alerta de duplicata ter o que alertar. Tela vazia não apresenta nada, e dado fictício mal feito apresenta pior ainda.
 - Faixa permanente **MODO DEMONSTRAÇÃO** na interface.
-- Backup, rotação e relatórios automáticos desligados. Emissão manual ligada.
-- Lock ativo: duas instâncias na mesma máquina mostram a tela de bloqueio.
+- Backup, rotação e relatórios automáticos desligados. Emissão manual ligada, que é o que se quer mostrar.
 
-Roteiro sugerido de apresentação, na ordem em que convence: Painel com carros na rua, abrir uma viagem em 20 segundos, encerrar com um clique, tentar abrir o mesmo veículo duas vezes e mostrar a recusa, cadastrar um nome parecido e mostrar o alerta, emitir o relatório do mês, abrir duas instâncias e mostrar o bloqueio.
+Roteiro sugerido, na ordem em que convence: Painel com carros na rua, abrir uma viagem em 20 segundos, encerrar com um clique, tentar abrir o mesmo veículo duas vezes e mostrar a recusa, cadastrar um nome parecido e mostrar o alerta, emitir o relatório do mês, abrir duas instâncias e mostrar a tela de bloqueio.
 
-**Pronto quando:** a demo roda do início ao fim sem tocar em rede, em máquina que não seja a sua, e sai dela um caminho de pasta e uma resposta da TI sobre executável.
+### O que a demo no Linux não prova, e é preciso saber antes de prometer
+
+- **O lock demonstrado é o stub de `flock`, não o `share_mode(0)`.** A tela de bloqueio aparece igual e a demonstração é honesta quanto ao comportamento, mas o mecanismo que garante usuário único em rede não foi exercitado. Não prometa na apresentação que o bloqueio em rede está testado: ele será testado na Fase 0b.
+- **A renderização é WebKitGTK, não WebView2.** Fonte, espaçamento e alguns detalhes de CSS mudam entre os dois. O que ficou perfeito na projeção pode desalinhar em Windows, e o retrabalho visual entra na Fase 10.
+- **Nada sobre a política de executáveis do setor foi respondido.** Isso é assunto da Fase 0a, que roda em paralelo e independe desta.
+
+**Pronto quando:** a demo roda do início ao fim, sem tocar em rede, e sai dela uma aprovação, um caminho de pasta e uma resposta da TI sobre executável.
 
 ---
 
