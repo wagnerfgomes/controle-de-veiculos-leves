@@ -257,11 +257,11 @@ O que só existe em produção e não tinha como ser testado antes:
 
 ---
 
-## Fase 10 — empacotamento, homologação e piloto
+## Fase 10 — build Windows, homologação e piloto
 
 **Onde roda:** Windows. **Depende de:** todas.
 
-1. Build de produção no Windows, alvo WebView2. Build no Linux serve para checagem de compilação, não é entrega.
+1. Build de produção no Windows, alvo WebView2, e **passada de revisão visual**: o que foi ajustado contra WebKitGTK na demo precisa ser conferido em WebView2. Build no Linux serve para checagem de compilação e para a demo, nunca para entrega.
 2. `.exe` e `config.toml` na pasta de rede, com `modo = "producao"`. `dados\`, `backups\` e `relatorios\` criados.
 3. Percorrer a seção 8 do SPEC inteira com alguém do setor, sem ler código.
 4. **Piloto de uma semana** registrando nos dois sistemas em paralelo e comparando os números ao fim. É o que dá confiança para desligar o HTML antigo.
@@ -277,13 +277,10 @@ O que só existe em produção e não tinha como ser testado antes:
 | Extração do HTML legado | **Cortada.** O `legado/` fica como referência de domínio e nada mais |
 | Dependências `unicode-normalization` e `strsim` | Aceitas |
 | Ordem de execução | Invertida: apresentação antes da validação de rede, porque a liberação depende dela |
+| Onde a demo roda | **Notebook Linux**, com build sob a feature `demo`. Aprovando, o app vai para Windows na Fase 10 |
+| Teste de estresse antecipado | **Sim.** Existe pasta de rede com escrita, e a Fase 0a roda em paralelo desde já |
 
-## Decisões ainda em aberto
-
-| # | Decisão | Trava |
-| --- | --- | --- |
-| 1 | Onde a demo roda: seu notebook Linux, ou uma máquina Windows do setor | Define se a Fase 8 precisa de um build Windows antecipado, puxando parte da Fase 10 para antes |
-| 2 | Caminho de rede onde já existe escrita hoje, para o `martelo` antecipado | Só afeta quando o risco da Fase 0 cai, não bloqueia nenhuma fase |
+Nenhuma decisão pendente. O que falta é informação que só o setor tem, e está na tabela de riscos.
 
 ---
 
@@ -291,8 +288,10 @@ O que só existe em produção e não tinha como ser testado antes:
 
 | Risco | Impacto | O que reduz |
 | --- | --- | --- |
-| Fase 0 reprova depois do app pronto | Seção 4 reescrita com o projeto quase inteiro construído | Rede confinada a três arquivos, e o `martelo` rodado cedo contra qualquer pasta com escrita |
-| TI bloqueia `.exe` em caminho UNC | Modelo de entrega inviável | Item zero da Fase 0, e a apresentação é justamente onde se descobre com quem falar |
+| **Política de rede e de executáveis é desconhecida** | Pode inviabilizar o modelo de entrega inteiro, e hoje ninguém sabe | Fase 0a, que responde isso rodando um CLI de 200 linhas. É a maior incerteza do projeto e a mais barata de resolver. Faça primeiro |
+| Fase 0 reprova depois do app pronto | Seção 4 reescrita com o projeto quase inteiro construído | Rede confinada a três arquivos, e a Fase 0a rodando em paralelo desde o começo |
+| TI bloqueia `.exe` em caminho UNC | Modelo de entrega inviável | Item zero da Fase 0b. Rodar do disco local passar não garante que do UNC passa: a zona de segurança é outra |
+| Demo no Linux cria expectativa que o Windows não cumpre | Retrabalho visual e promessa quebrada sobre o lock | Os limites estão escritos na Fase 8. Não prometer bloqueio em rede testado, nem pixel final |
 | Apresentação com base vazia ou dado fictício ruim | Não convence, e sem convencer não há acesso | Gerador de base fictícia é entregável da Fase 8, não improviso da véspera |
 | Stub de lock silencioso em Linux | Descobrir em produção que nunca houve lock | Aviso, indicador na tela e `compile_error!` em release, já no SPEC |
 | Cadastro manual sem rede de segurança | Repetir os 182 nomes para 70 pessoas | `SEMELHANTE` antes de gravar, indicador de duplicatas na Gestão, fusão funcionando desde a Fase 5 |
@@ -302,7 +301,7 @@ O que só existe em produção e não tinha como ser testado antes:
 
 ## Estado atual
 
-`main`, árvore limpa. Existe: `CLAUDE.md`, `docs/SPEC.md` (797 linhas), `docs/PLANO.md`, `legado/gerenciamento_veiculos_leves_sja_2026-08-18.html` e `.gitignore`.
+`main`, árvore limpa. Existe: `CLAUDE.md`, `docs/SPEC.md`, `docs/PLANO.md`, `legado/gerenciamento_veiculos_leves_sja_2026-08-18.html` e `.gitignore`.
 
 Não existe ainda: scaffold, migrações, código Rust, código React, `config.toml`, pasta de rede definida.
 
