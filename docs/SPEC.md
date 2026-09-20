@@ -689,6 +689,7 @@ Cada item é verificável por alguém do setor, sem ler código. A homologação
 
 Protótipo descartável, rodando contra o compartilhamento real, em duas máquinas do setor:
 
+- [ ] **Item zero, antes de qualquer outro:** copiar um `.exe` não assinado para o caminho UNC e abri-lo nas máquinas do setor. Bloqueou por SmartScreen ou por política de TI, **pare aqui**: o modelo de entrega inteiro depende disso, e nenhum outro item importa enquanto não estiver resolvido. Aparece de novo na seção "Ambiente", mas lá é homologação final, tarde demais para descobrir.
 - [ ] Gravar em loop no banco da rede, puxar o cabo no meio da escrita, reconectar, reabrir, rodar `integrity_check`. **20 vezes, variando o momento da interrupção, 20 aprovações.**
 - [ ] Duas máquinas tentando o lock ao mesmo tempo: exatamente uma obtém.
 - [ ] Matar o processo que detém o lock: a outra máquina consegue abrir sem intervenção.
