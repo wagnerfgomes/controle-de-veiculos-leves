@@ -309,6 +309,59 @@ previa_relatorio(tipo: TipoRelatorio, filtro: FiltroSaidas) -> RelatorioDados
 
 `TipoRelatorio` = `UsoVeiculo | UsoMotorista`. `Formato` = `Html | Pdf | Csv`.
 
+### Structs que não saem do schema
+
+As demais saem direto das tabelas. Estas três não, e por isso ficam definidas aqui:
+
+```rust
+struct EstadoSessao {
+    usuario_windows: String,
+    maquina: String,
+    inicio: String,                  // 'YYYY-MM-DD HH:MM'
+    conexao: Conexao,                // Normal | Degradada
+    ultimo_backup: Option<String>,
+    user_version: i64,               // lido do PRAGMA, nunca de config
+    caminho_dados: String,           // o que a barra de status mostra
+}
+
+struct Kpis {
+    viagens: u32,
+    abertas: u32,
+    condutores_distintos: u32,
+    frotas_distintas: u32,
+    duracao_media_horas: Option<f64>,   // None quando nenhuma viagem fechou
+    por_turno: [u32; 3],                // A, B, C
+}
+
+struct RelatorioDados {
+    cabecalho: CabecalhoRelatorio,
+    linhas: Vec<LinhaRelatorio>,
+}
+
+struct CabecalhoRelatorio {
+    de: String, ate: String,            // :ate exclusivo
+    viagens: u32,
+    sem_chegada: u32,            sem_chegada_pct: f64,
+    chegadas_manuais: u32,       chegadas_manuais_pct: f64,
+    hodometro_completo: u32,     hodometro_completo_pct: f64,
+    emitido_em: String, emitido_por: String,
+}
+
+struct LinhaRelatorio {
+    rotulo: String,                     // frota e modelo, ou nome e matrícula
+    viagens: u32,
+    abertas: u32,
+    horas_totais: f64,
+    horas_media: Option<f64>,
+    chegadas_manuais: u32,
+    km: Option<i64>,                    // só em UsoVeiculo
+    veiculos_distintos: Option<u32>,    // só em UsoMotorista
+    frotas: Option<String>,             // só em UsoMotorista
+}
+```
+
+`duracao_media_horas` e `horas_media` são `Option` de propósito: média de zero viagens fechadas é ausência de dado, não zero. Zero na tela afirma que os carros rodaram sem gastar tempo.
+
 ---
 
 ## 4. Sessão
