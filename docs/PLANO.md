@@ -77,7 +77,7 @@ Arquivos: `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, `src/
 | `src-tauri/src/erro.rs` | `ErroApp` com os nove códigos da seção 3 e o mapeamento de `rusqlite::Error` |
 | `src-tauri/src/db/auditoria.rs` | gravação em `auditoria` dentro da transação do chamador |
 
-O ponto delicado é o mapeamento de `SQLITE_CONSTRAINT_UNIQUE`: identificar o índice **pelo nome na mensagem** e traduzir para `VEICULO_EM_USO` ou `MOTORISTA_EM_USO`. Nunca vazar como `BANCO`. Isso é testado, não confiado.
+O ponto delicado é o mapeamento de `SQLITE_CONSTRAINT_UNIQUE` para `VEICULO_EM_USO` ou `MOTORISTA_EM_USO`, nunca vazando como `BANCO`. Ao violar um índice único **parcial** o SQLite não cita o nome do índice, e sim a coluna: `UNIQUE constraint failed: saidas.veiculo_id`. O teste precisa provocar a violação contra banco real; um teste que fabrica a mensagem suposta passa com o mapeamento errado.
 
 **Pronto quando:** teste de migração de schema vazio até v1 passa, e um teste lê de volta os quatro PRAGMA confirmando que estão ativos.
 
@@ -183,7 +183,7 @@ CSV com BOM UTF-8 e separador `;`. PDF pela impressão do WebView. `:ate` exclus
 
 É o marco que destrava o projeto inteiro. O entregável não é código, é autorização. Aprovando, aí sim o app vai para Windows, na Fase 10.
 
-- Build com `cargo build --release --features demo`, o único release de Linux que o SPEC permite. **Não apresente de `npm run tauri dev`**: terminal aberto na projeção, recarga quente disparando no meio da fala e risco de erro de compilação ao vivo. Binário pronto, duplo clique, acabou.
+- Build com `npx tauri build --no-bundle --features demo`, o único release de Linux que o SPEC permite. **Não use `cargo build --release`**: quem decide entre o dev server e o bundle embutido é o CLI do Tauri, e o binário sairia apontando para `http://localhost:1420`, abrindo em branco. **Não apresente de `npm run tauri dev`**: terminal aberto na projeção, recarga quente disparando no meio da fala e risco de erro de compilação ao vivo. Binário pronto, duplo clique, acabou.
 - A feature `demo` força `modo = "demonstracao"`: banco em `.\dados-demo`, recriado do zero a cada abertura.
 - **Gerador de base fictícia**, que é o entregável de verdade desta fase: veículos, motoristas e viagens espalhadas por dois meses, umas abertas e outras fechadas, uma passando de 24 h para a linha vermelha aparecer, alguns nomes propositalmente parecidos para o alerta de duplicata ter o que alertar. Tela vazia não apresenta nada, e dado fictício mal feito apresenta pior ainda.
 - Faixa permanente **MODO DEMONSTRAÇÃO** na interface.

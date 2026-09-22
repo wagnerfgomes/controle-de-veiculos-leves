@@ -107,7 +107,7 @@ O bundle de produção é gerado no Windows (alvo WebView2). Build a partir do L
 
 **Quando o SQLite devolver erro de I/O**, trate como servidor caído: mostre "Conexão com o servidor perdida" e ofereça reconectar, o que reabre a conexão e roda `integrity_check`. Nunca enfileire escritas em memória para aplicar depois, é a porta de entrada para divergência silenciosa.
 
-**Quando vier `SQLITE_CONSTRAINT_UNIQUE`**, identifique o índice pelo nome na mensagem e mapeie para os códigos `VEICULO_EM_USO` ou `MOTORISTA_EM_USO`. Nunca deixe vazar como erro genérico de banco.
+**Quando vier `SQLITE_CONSTRAINT_UNIQUE`**, mapeie para `VEICULO_EM_USO` ou `MOTORISTA_EM_USO`, nunca deixe vazar como erro genérico de banco. Ao violar um índice único **parcial** o SQLite **não cita o nome do índice**: a mensagem é `UNIQUE constraint failed: saidas.veiculo_id`, indistinguível de um `UNIQUE` de coluna. Case pela coluna, que só é única por causa desse índice. Casar por `ux_veiculo_em_uso` sozinho é um ramo que nunca dispara.
 
 **Quando implementar cadastro rápido de condutor no formulário**, exija alerta de nome parecido (Levenshtein ≤ 2) antes de gravar, e garanta que a função de fundir cadastros exista. O sistema antigo acumulou 182 nomes de condutor para cerca de 70 pessoas reais porque o campo era texto livre.
 
