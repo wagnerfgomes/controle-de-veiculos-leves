@@ -1,0 +1,16 @@
+[package]
+name = "sonda"
+version = "0.1.0"
+edition = "2021"
+description = "Protótipo descartável da Fase 0: mede se o SQLite sobrevive na pasta de rede"
+
+# Fora do workspace do app de propósito: a sonda não pode arrastar Tauri, senão
+# deixa de cross-compilar para Windows a partir do Linux.
+[workspace]
+
+[dependencies]
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+[profile.release]
+opt-level = "s"
+strip = true

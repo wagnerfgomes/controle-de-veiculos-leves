@@ -1,0 +1,649 @@
+/* Layout das telas. Densidade alta de propósito: o operador precisa ver o
+   máximo de viagens abertas sem rolar. */
+
+.aplicacao {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.faixa-demo {
+  background: var(--laranja);
+  color: #fff;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 4px;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--azul);
+  color: #fff;
+  padding: 8px 16px;
+}
+
+.cabecalho h1 {
+  font-size: 19px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cabecalho nav {
+  display: flex;
+  gap: 4px;
+}
+
+.cabecalho nav button {
+  background: transparent;
+  color: #a8c7e8;
+  border-color: transparent;
+}
+
+.cabecalho nav button:hover:not(:disabled) {
+  color: #fff;
+  border-color: var(--azul-medio);
+}
+
+.cabecalho nav button.ativa {
+  background: var(--azul-medio);
+  color: #fff;
+  border-color: var(--azul-medio);
+}
+
+.conteudo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px 18px;
+}
+
+.bloco {
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.bloco h2 {
+  font-size: 17px;
+  color: var(--azul);
+  margin-bottom: 8px;
+}
+
+.cabecalho-bloco {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cabecalho-bloco h2 {
+  margin: 0;
+}
+
+.vazio {
+  padding: 18px 0;
+  text-align: center;
+}
+
+.rolagem {
+  max-height: 58vh;
+  overflow-y: auto;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+td.num button + button {
+  margin-left: 4px;
+}
+
+tr.inativo td {
+  color: var(--cinza-texto);
+}
+
+/* ------------------------------------------------------------------ KPIs -- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.indicador {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.indicador .rotulo {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cinza-texto);
+}
+
+.indicador .valor {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--azul);
+}
+
+.indicador.destaque .valor {
+  color: var(--verde-dark);
+}
+
+.indicador.turnos .turno-linha {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 600;
+  padding-top: 3px;
+}
+
+.acoes-painel {
+  margin-bottom: 14px;
+}
+
+/* -------------------------------------------------------------- veículos -- */
+
+.grade-veiculos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.chip-veiculo {
+  border: 1px solid var(--cinza-borda);
+  border-left: 3px solid var(--verde);
+  border-radius: var(--raio);
+  padding: 6px 9px;
+  display: flex;
+  flex-direction: column;
+  background: var(--verde-claro);
+}
+
+.chip-veiculo.ocupado {
+  background: #f7f9fc;
+  border-left-color: var(--cinza-borda);
+  opacity: 0.65;
+}
+
+.chip-veiculo strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 17px;
+}
+
+.chip-veiculo small {
+  color: var(--cinza-texto);
+  font-size: 12px;
+}
+
+.chip-veiculo .com-quem {
+  color: var(--laranja);
+}
+
+/* ----------------------------------------------------------------- modal -- */
+
+.fundo-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 57, 109, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.caixa-modal {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.caixa-modal header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--cinza-borda);
+}
+
+.caixa-modal header h2 {
+  color: var(--azul);
+  font-size: 18px;
+}
+
+.caixa-modal header button {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+}
+
+.corpo-modal {
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.caixa-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--cinza-borda);
+  background: #f7f9fc;
+}
+
+/* ---------------------------------------------------------------- campos -- */
+
+.campo {
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.campo label {
+  display: block;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cinza-texto);
+  margin-bottom: 3px;
+}
+
+.linha {
+  display: flex;
+  gap: 10px;
+}
+
+.linha > .campo {
+  flex: 1;
+}
+
+.caixa,
+.campo.caixas label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+  font-family: "Barlow", sans-serif;
+  font-size: 14px;
+  color: var(--cinza-escuro);
+}
+
+.campo.caixas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.caixa input,
+.campo.caixas input {
+  width: auto;
+}
+
+.botoes-turno {
+  display: flex;
+  gap: 4px;
+}
+
+.botoes-turno button {
+  flex: 1;
+  padding: 7px 0;
+}
+
+.botoes-turno button.turno-escolhido.A {
+  background: var(--turno-a-fundo);
+  color: var(--turno-a-texto);
+  border-color: var(--turno-a-borda);
+}
+
+.botoes-turno button.turno-escolhido.B {
+  background: var(--turno-b-fundo);
+  color: var(--turno-b-texto);
+  border-color: var(--turno-b-borda);
+}
+
+.botoes-turno button.turno-escolhido.C {
+  background: var(--turno-c-fundo);
+  color: var(--turno-c-texto);
+  border-color: var(--turno-c-borda);
+}
+
+button.link {
+  background: none;
+  border: none;
+  color: var(--azul-medio);
+  text-transform: none;
+  font-family: "Barlow", sans-serif;
+  font-weight: 400;
+  text-decoration: underline;
+  padding: 0 0 8px;
+}
+
+/* ----------------------------------------------------------------- combo -- */
+
+.combo {
+  position: relative;
+}
+
+.combo .limpar {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  border: none;
+  background: transparent;
+  padding: 3px 6px;
+}
+
+.lista-combo {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--cinza-borda);
+  border-radius: var(--raio);
+  box-shadow: 0 4px 12px rgba(15, 57, 109, 0.18);
+}
+
+.lista-combo li button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+  text-transform: none;
+  font-family: "Barlow", sans-serif;
+  font-weight: 400;
+  padding: 6px 10px;
+}
+
+.lista-combo li button:hover {
+  background: var(--azul-claro);
+}
+
+.lista-combo li button strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 16px;
+}
+
+.lista-combo li button small {
+  color: var(--cinza-texto);
+  font-size: 12px;
+}
+
+/* Indisponível aparece esmaecido em vez de sumir: quem registra precisa saber
+   a quem recorrer. */
+.lista-combo li button.indisponivel {
+  opacity: 0.55;
+}
+
+.lista-combo li button.indisponivel small {
+  color: var(--laranja);
+}
+
+.lista-combo li.vazio {
+  padding: 8px 10px;
+}
+
+.lista-combo li button.cadastrar {
+  color: var(--verde-dark);
+  font-weight: 600;
+  padding: 0;
+}
+
+/* --------------------------------------------------------------- avisos --- */
+
+.aviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: var(--raio);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid;
+}
+
+.aviso.erro {
+  background: var(--vermelho-claro);
+  border-color: #fca5a5;
+  color: #7f1d1d;
+}
+
+.aviso.atencao {
+  background: var(--laranja-claro);
+  border-color: #fbbf24;
+  color: #b45309;
+}
+
+.aviso button {
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+.toast {
+  position: fixed;
+  right: 16px;
+  bottom: 48px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--cinza-escuro);
+  color: #fff;
+  border-radius: var(--raio);
+  padding: 9px 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  max-width: 60vw;
+}
+
+.toast button {
+  background: transparent;
+  border: none;
+  color: #fff;
+}
+
+/* --------------------------------------------------------------- resumo --- */
+
+.resumo {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 14px;
+  margin: 0 0 12px;
+}
+
+.resumo dt {
+  font-family: "Barlow Condensed", sans-serif;
+  text-transform: uppercase;
+  font-size: 13px;
+  color: var(--cinza-texto);
+}
+
+.resumo dd {
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- filtros --- */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.filtros .campo {
+  margin-bottom: 0;
+  min-width: 140px;
+}
+
+/* ---------------------------------------------------------- duplicatas --- */
+
+.duplicatas {
+  border-left: 3px solid var(--laranja);
+}
+
+.duplicatas h2 {
+  color: var(--laranja);
+}
+
+.duplicatas ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.duplicatas li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+/* ------------------------------------------------------------- gestão ---- */
+
+.abas {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.abas button.ativa {
+  background: var(--azul);
+  color: #fff;
+  border-color: var(--azul);
+}
+
+/* -------------------------------------------------- bloqueio e erro ------ */
+
+.tela-bloqueio,
+.tela-erro {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.tela-bloqueio .cartao,
+.tela-erro .cartao {
+  max-width: 520px;
+  padding: 24px;
+  text-align: center;
+}
+
+.tela-bloqueio h1,
+.tela-erro h1 {
+  color: var(--azul);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.tela-bloqueio .quem {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 18px;
+  color: var(--cinza-escuro);
+  margin: 0 0 8px;
+}
+
+.tomada-posse {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cinza-borda);
+  text-align: left;
+}
+
+.tomada-posse label {
+  display: block;
+  font-family: "Barlow Condensed", sans-serif;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: var(--cinza-texto);
+  margin-bottom: 8px;
+}
+
+.alerta-forte {
+  background: var(--vermelho-claro);
+  border: 1px solid #fca5a5;
+  border-radius: var(--raio);
+  color: #7f1d1d;
+  padding: 8px 10px;
+}
+
+/* -------------------------------------------------------- barra de status - */
+
+.barra-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cinza-escuro);
+  color: #cbd5e1;
+  font-size: 12px;
+  padding: 4px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.barra-status .separador {
+  color: #64748b;
+}
+
+.barra-status .espaco {
+  flex: 1;
+}
+
+.barra-status button {
+  font-size: 12px;
+  padding: 2px 8px;
+  background: transparent;
+  color: #cbd5e1;
+  border-color: #475569;
+}
+
+.barra-status .conexao-ok {
+  color: var(--verde);
+}
+
+.barra-status .conexao-ruim {
+  color: #fca5a5;
+  font-weight: 600;
+}
+
+.barra-status .lock-stub {
+  background: var(--laranja);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 1px 6px;
+  letter-spacing: 0.04em;
+}
+
+.cabecalho-relatorio {
+  grid-template-columns: max-content max-content;
+}

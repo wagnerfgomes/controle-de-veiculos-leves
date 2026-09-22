@@ -1,0 +1,35 @@
+[package]
+name = "controle-veiculos"
+version = "0.1.0"
+description = "Controle de saída e retorno de veículos leves — Logística"
+edition = "2021"
+rust-version = "1.82"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = "0.4"
+tokio = { version = "1", features = ["rt", "time", "macros", "sync"] }
+toml = "0.8"
+unicode-normalization = "0.1"
+strsim = "0.11"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[features]
+# A apresentação roda de um binário Linux em release. Esta é a única porta
+# para isso, e ela força modo = "demonstracao" em tempo de compilação.
+demo = []
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

@@ -1,0 +1,221 @@
+/* Tokens copiados do HTML legado. A equipe já está treinada nessa paleta e
+   nesse ritmo visual; mudá-los custaria adaptação sem ganho nenhum. */
+
+:root {
+  --azul: #0f396d;
+  --azul-medio: #1a4f8e;
+  --azul-claro: #dbeafe;
+  --verde: #5bc04b;
+  --verde-dark: #3e9c30;
+  --verde-claro: #e8f9e5;
+  --laranja: #ea6c1a;
+  --laranja-claro: #fff0e6;
+  --roxo: #7c3aed;
+  --roxo-claro: #f3eeff;
+  --ciano: #0891b2;
+  --ciano-claro: #e0f7fa;
+  --cinza-fundo: #f0f3f7;
+  --cinza-borda: #d1d9e0;
+  --cinza-escuro: #1e2a3a;
+  --cinza-texto: #6b7280;
+  --vermelho: #b91c1c;
+  --vermelho-claro: #fee2e2;
+
+  --turno-a-fundo: #fff8e1;
+  --turno-a-texto: #b45309;
+  --turno-a-borda: #f59e0b;
+  --turno-b-fundo: #e8f0fb;
+  --turno-b-texto: var(--azul);
+  --turno-b-borda: #93c5fd;
+  --turno-c-fundo: #f3eeff;
+  --turno-c-texto: var(--roxo);
+  --turno-c-borda: #c4b5fd;
+
+  --raio: 6px;
+  --sombra: 0 1px 3px rgba(15, 57, 109, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Barlow", sans-serif;
+  font-size: 14px;
+  color: var(--cinza-escuro);
+  background: var(--cinza-fundo);
+  /* A janela é a aplicação inteira: selecionar texto arrastando só atrapalha. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select {
+  -webkit-user-select: text;
+  user-select: text;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+th,
+.condensada {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+button {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  padding: 7px 14px;
+  cursor: pointer;
+  background: #fff;
+  color: var(--azul);
+  border-color: var(--cinza-borda);
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--azul-medio);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.primario {
+  background: var(--azul);
+  color: #fff;
+  border-color: var(--azul);
+}
+
+button.primario:hover:not(:disabled) {
+  background: var(--azul-medio);
+}
+
+button.verde {
+  background: var(--verde);
+  color: #fff;
+  border-color: var(--verde-dark);
+}
+
+button.verde:hover:not(:disabled) {
+  background: var(--verde-dark);
+}
+
+button.perigo {
+  color: var(--vermelho);
+  border-color: #fca5a5;
+}
+
+button.grande {
+  font-size: 18px;
+  padding: 11px 22px;
+}
+
+input,
+textarea,
+select {
+  border: 1px solid var(--cinza-borda);
+  border-radius: var(--raio);
+  padding: 7px 9px;
+  background: #fff;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--azul-claro);
+  border-color: var(--azul-medio);
+}
+
+.cartao {
+  background: #fff;
+  border: 1px solid var(--cinza-borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  text-align: left;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--cinza-texto);
+  background: #f7f9fc;
+  border-bottom: 1px solid var(--cinza-borda);
+  padding: 7px 9px;
+  position: sticky;
+  top: 0;
+}
+
+td {
+  padding: 6px 9px;
+  border-bottom: 1px solid #edf0f4;
+  vertical-align: middle;
+}
+
+tr.excluida td {
+  text-decoration: line-through;
+  color: var(--cinza-texto);
+}
+
+tr.alerta td {
+  color: var(--vermelho);
+  font-weight: 600;
+}
+
+.etiqueta-turno {
+  display: inline-block;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.etiqueta-turno.A {
+  background: var(--turno-a-fundo);
+  color: var(--turno-a-texto);
+  border: 1px solid var(--turno-a-borda);
+}
+
+.etiqueta-turno.B {
+  background: var(--turno-b-fundo);
+  color: var(--turno-b-texto);
+  border: 1px solid var(--turno-b-borda);
+}
+
+.etiqueta-turno.C {
+  background: var(--turno-c-fundo);
+  color: var(--turno-c-texto);
+  border: 1px solid var(--turno-c-borda);
+}
+
+.sutil {
+  color: var(--cinza-texto);
+  font-size: 13px;
+}

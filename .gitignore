@@ -8,3 +8,13 @@ dados/
 node_modules/
 dist/
 src-tauri/target/
+
+# Gerado pelo tauri-build a cada compilação
+src-tauri/gen/
+
+# Alvo de build da sonda
+sonda/target/
+
+# Base local de desenvolvimento e da demo
+dados-dev/
+dados-demo/
