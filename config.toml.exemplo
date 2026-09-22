@@ -1,0 +1,10 @@
+# Fica ao lado do ControleVeiculos.exe, na pasta de rede. Nunca compilado no binário.
+# Copie para config.toml e ajuste o caminho.
+
+# Pasta de rede que contém dados\, backups\ e relatorios\.
+caminho_dados = "\\\\servidor\\logistica\\veiculos-leves"
+
+# "producao" ou "demonstracao".
+# Em demonstracao o caminho_dados acima é ignorado: o banco vai para .\dados-demo,
+# ao lado do executável, e é recriado do zero a cada abertura.
+modo = "producao"
