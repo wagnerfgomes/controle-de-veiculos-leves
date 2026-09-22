@@ -11,3 +11,6 @@ src-tauri/target/
 
 # Gerado pelo tauri-build a cada compilação
 src-tauri/gen/
+
+# Alvo de build da sonda
+sonda/target/
