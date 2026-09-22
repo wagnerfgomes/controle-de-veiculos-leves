@@ -60,12 +60,18 @@ impl Sessao {
             config.origem
         ));
 
-        if config.demonstracao() {
-            preparar_demonstracao(&config)?;
-        }
-
-        // 2. O lock antes de tudo que toca o banco.
+        // 2. O lock antes de tudo que toca o banco, e **antes** de recriar a
+        //    base de demonstração: a segunda instância precisa cair na tela de
+        //    bloqueio sem ter apagado o banco que a primeira está usando. Na
+        //    apresentação é justamente isso que se mostra.
         let lock = LockAtual::adquirir(&config.lock())?;
+
+        if config.demonstracao() {
+            if let Err(e) = preparar_demonstracao(&config) {
+                lock.liberar();
+                return Err(e);
+            }
+        }
 
         // 3. Conexão sobre o arquivo da rede, com os quatro PRAGMA.
         let conexao = match conexao::abrir(&config.banco()) {

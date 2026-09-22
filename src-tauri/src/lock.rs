@@ -154,6 +154,10 @@ fn erro_em_uso(caminho_lock: &Path) -> ErroApp {
         ),
         None => "não foi possível identificar quem está usando".to_string(),
     };
+    // Sem esta linha, uma sessão recusada não deixa rastro nenhum no log, e
+    // "o sistema não abre aqui" vira um chamado sem diagnóstico possível.
+    registro::info(&format!("lock recusado: {detalhe}"));
+
     ErroApp::validacao("O sistema já está aberto em outra máquina.")
         .com_detalhe(format!("EM_USO:{detalhe}"))
 }

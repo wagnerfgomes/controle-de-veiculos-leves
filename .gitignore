@@ -14,3 +14,7 @@ src-tauri/gen/
 
 # Alvo de build da sonda
 sonda/target/
+
+# Base local de desenvolvimento e da demo
+dados-dev/
+dados-demo/
