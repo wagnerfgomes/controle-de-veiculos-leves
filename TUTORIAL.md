@@ -1,6 +1,12 @@
 # Tutorial
 
-Duas partes, dois públicos. A **Parte 1** é para quem desenvolve e faz o build. A **Parte 2** é o manual de quem vai usar o sistema no dia a dia, e pode ser impressa e entregue sem nada de código junto.
+Três partes, três públicos:
+
+| Parte | Para quem | O que cobre |
+| --- | --- | --- |
+| [1](#parte-1-para-quem-desenvolve) | Quem desenvolve | Setup, testes, build da demo, sonda da Fase 0a |
+| [2](#parte-2-instalar-na-pasta-de-rede-e-cuidar-dela) | Quem instala e responde pelo sistema | Onde cada arquivo fica, o que precisa em cada máquina, **backup sem estragar o banco** |
+| [3](#parte-3-para-quem-vai-usar) | Quem opera no dia a dia | Manual de uso, sem nada de código. Pode imprimir e entregar |
 
 O contrato técnico completo está em [`docs/SPEC.md`](docs/SPEC.md), e a ordem de execução em [`docs/PLANO.md`](docs/PLANO.md). Este arquivo não os substitui: ele ensina a rodar o que já existe.
 
@@ -203,7 +209,138 @@ O que a Fase 9 traz, e por que foi deixada de fora de propósito: modo degradado
 
 ---
 
-# Parte 2: para quem vai usar
+# Parte 2: instalar na pasta de rede, e cuidar dela
+
+Esta parte é para quem coloca o sistema no ar e responde por ele. Ela responde três perguntas: onde cada arquivo fica, o que é preciso ter em cada máquina, e como fazer backup sem estragar o banco.
+
+## A pasta é a instalação inteira
+
+Não existe instalador, serviço, banco de dados em servidor nem registro no Windows. O sistema é uma pasta, e é isso que permite abrir de qualquer estação sem procedimento nenhum.
+
+```
+\\servidor\logistica\veiculos-leves\          a pasta, que é tudo
+├── ControleVeiculos.exe                      o programa
+├── config.toml                               diz onde ficam os dados e o modo
+├── dados\
+│   ├── controle.db                           O BANCO. É o arquivo que importa
+│   ├── controle.db-journal                   recuperação de queda. NUNCA apague
+│   ├── controle.lock                         o "tem alguém usando"
+│   └── controle.lock.info                    quem é, em que máquina, desde quando
+├── backups\
+│   └── controle_2026-09-22_1430.db           cópias consistentes, uma por geração
+└── relatorios\
+    └── 2026-09\
+        └── uso-veiculo_2026-09-01_a_2026-10-01.csv
+```
+
+As subpastas nascem sozinhas na primeira abertura. Você só precisa criar a pasta principal e colocar dois arquivos nela: o executável e o `config.toml`.
+
+O `config.toml` fica **ao lado do executável**, nunca compilado dentro dele. Trocar de servidor é editar um arquivo de texto, não recompilar:
+
+```toml
+caminho_dados = "\\\\servidor\\logistica\\veiculos-leves"
+modo          = "producao"
+```
+
+Repare nas barras dobradas. É exigência do formato TOML, e o `config.toml.exemplo` do repositório já vem assim.
+
+### O que é cada arquivo, em uma linha
+
+| Arquivo | Para que serve | Pode apagar? |
+| --- | --- | --- |
+| `controle.db` | O banco. Todas as viagens, veículos e condutores | **Nunca** |
+| `controle.db-journal` | Permite o SQLite reverter uma escrita interrompida | **Nunca.** Ver abaixo |
+| `controle.lock` | Arquivo travado enquanto alguém usa | Não, mas o sistema o recria |
+| `controle.lock.info` | Texto legível com quem está usando | Sim, mas some sozinho ao fechar |
+| `backups\*.db` | Cópias do banco, consistentes | Sim, a rotação faz isso |
+| `relatorios\` | Arquivos emitidos | Sim |
+
+**Sobre o `controle.db-journal`:** ele quase sempre aparece com tamanho zero, e isso é normal. Se o sistema cair no meio de uma gravação, ele fica com conteúdo, e é ele que o SQLite lê na próxima abertura para desfazer a escrita pela metade. Apagá-lo à mão é o que transforma uma queda recuperável em perda de dados. Não apague, e não oriente ninguém a apagar.
+
+## O que precisa estar em cada máquina do setor
+
+Quase nada, mas esse "quase" importa.
+
+| O que | Onde | Observação |
+| --- | --- | --- |
+| **WebView2 Runtime** | na máquina | **A única dependência externa.** Sem ele o programa abre e não desenha tela |
+| `app.log` | `%LOCALAPPDATA%\ControleVeiculos\app.log` | Único arquivo que o sistema escreve fora da pasta de rede. Só log, nenhum dado |
+
+O WebView2 vem por padrão no Windows 11 e na maioria dos Windows 10 atualizados, mas **não é garantido**, e as máquinas do setor podem não ter internet para buscá-lo sozinhas. Vale confirmar isso na mesma ida em que você for rodar a sonda da Fase 0a, junto com a pergunta sobre política de executáveis.
+
+Para conferir numa máquina, no PowerShell:
+
+```powershell
+Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" -ErrorAction SilentlyContinue |
+  Select-Object pv
+```
+
+Se devolver um número de versão, o runtime está presente. Se não devolver nada, a TI precisa instalá-lo, e isso entra na mesma conversa da liberação do executável.
+
+O `app.log` é a primeira coisa a olhar quando alguém disser que o sistema não abriu naquela máquina. Ele registra a abertura, o caminho tentado, a recusa de lock com o nome de quem está usando, e qualquer falha de rede.
+
+## Mover, copiar ou renomear a pasta
+
+A pasta inteira é portátil, com duas ressalvas.
+
+**Move sem problema:** copie a pasta para outro caminho, ajuste `caminho_dados` no `config.toml`, e pronto. Os backups e relatórios vão junto. Nada no banco guarda o caminho de onde ele estava.
+
+**Faça isso com o sistema fechado.** Copiar a pasta enquanto alguém está usando cai no mesmo problema do backup, explicado logo abaixo.
+
+**Não rode duas cópias da pasta apontando para o mesmo `caminho_dados`.** O lock protege contra duas instâncias no mesmo banco, então a segunda cai na tela de bloqueio, mas você acaba com dois executáveis de versões diferentes gravando no mesmo lugar, e a primeira migração de schema que uma delas aplicar deixa a outra sem entender o banco.
+
+## Backup do banco por fora do sistema
+
+Aqui está o ponto que merece atenção, e ele contraria o instinto.
+
+**Não copie o `controle.db` com `copy`, `xcopy` ou `robocopy` enquanto o sistema estiver aberto.** Um banco SQLite em uso está sendo escrito em páginas, e uma cópia feita no meio de uma gravação pode capturar páginas de dois estados diferentes. O arquivo resultante **parece** um backup: tem o tamanho certo, abre sem reclamar, e só revela o problema no dia em que você precisa restaurá-lo. É o pior tipo de falha, porque ela fica invisível até a hora em que doer.
+
+Existem três caminhos seguros. Em ordem de preferência para este caso:
+
+### 1. Copie a pasta `backups\`, não o banco vivo
+
+O sistema gera as cópias com `VACUUM INTO`, que produz um arquivo consistente por construção. Esses arquivos já estão fechados e prontos quando aparecem, então copiá-los é seguro a qualquer momento, com qualquer ferramenta.
+
+```powershell
+robocopy "\\servidor\logistica\veiculos-leves\backups" "D:\backup-veiculos" /MIR /R:3 /W:10
+```
+
+Agendado a cada 3 horas no Agendador de Tarefas, isso resolve sem risco nenhum e sem programa extra.
+
+**A ressalva:** hoje o sistema gera backup **ao fechar** e pelo botão **Backup agora** na barra de status. O backup automático a cada 4 horas está previsto, mas é da Fase 9 e ainda não foi implementado. Na prática, se a estação ficar dias sem fechar o programa, não aparece backup novo para o seu script copiar.
+
+Se você quer os 3 em 3 horas de verdade, o caminho limpo é ligar o backup automático do próprio sistema. É um item pequeno e já contratado no SPEC. Me peça e eu implemento.
+
+### 2. Use o `sqlite3.exe` com o comando de backup online
+
+Funciona mesmo com o sistema aberto, porque usa a API de backup do próprio SQLite em vez de copiar bytes:
+
+```powershell
+sqlite3.exe "\\servidor\logistica\veiculos-leves\dados\controle.db" ".backup 'D:\backup-veiculos\controle_$(Get-Date -f yyyy-MM-dd_HHmm).db'"
+```
+
+O `sqlite3.exe` é um único arquivo de cerca de 1 MB, não precisa de instalação. **Mas ele é mais um executável**, e passa pela mesma política de TI que o sistema. Se o setor bloqueia executável não assinado, este também vai barrar.
+
+### 3. Copiar o banco com o sistema fechado
+
+Se o setor usa o sistema em horário definido, uma cópia simples de madrugada é perfeitamente segura. Nesse caso copie **os dois arquivos juntos**, `controle.db` e `controle.db-journal`, porque o journal faz parte do estado do banco.
+
+### Teste a restauração, pelo menos uma vez
+
+Um backup nunca restaurado não é backup, é um arquivo. Pegue uma cópia, coloque numa pasta separada com um `config.toml` apontando para lá, abra o sistema e confira se as viagens estão todas lá. Faça isso uma vez agora, no começo, e não descubra em março que a rotina vinha gravando lixo desde outubro.
+
+## Quando alguma coisa der errado
+
+| Sintoma | Onde olhar | O que costuma ser |
+| --- | --- | --- |
+| Não abre em uma máquina só | `%LOCALAPPDATA%\ControleVeiculos\app.log` daquela máquina | WebView2 ausente, ou política de executável |
+| "Sistema em uso" e não tem ninguém | `dados\controle.lock.info` | Estação que travou. Depois de 10 min sem sinal, o sistema oferece assumir |
+| Apareceu `controle.db-journal` com tamanho grande | nada a fazer | Queda no meio de uma escrita. O sistema reverte sozinho na próxima abertura |
+| "Conexão com o servidor perdida" | rede e o compartilhamento | O servidor de arquivos saiu do ar. Reconectar resolve |
+
+---
+
+# Parte 3: para quem vai usar
 
 Este sistema registra qual veículo saiu, com quem, para onde e a que horas voltou. Ele substitui a planilha, e a diferença principal é que ele **não deixa** dois registros conflitantes existirem.
 
@@ -319,6 +456,19 @@ Se aparecer uma tela dizendo **Sistema em uso**, com o nome de uma pessoa, uma m
 O certo é **procurar essa pessoa**. Clique em **Tentar novamente** quando ela fechar.
 
 Se o computador da outra pessoa travou ou foi desligado no botão, depois de 10 minutos sem sinal aparece a opção de assumir a sessão, e ela exige digitar `CONFIRMAR`. **Use só se tiver certeza de que aquele sistema está realmente fechado**, porque assumir enquanto o outro computador ainda está gravando pode corromper os dados.
+
+## Onde ficam os dados
+
+Tudo fica na pasta de rede, junto com o programa. **Nada é gravado no seu computador**, e isso é de propósito: você pode abrir o sistema de qualquer estação do setor e vai encontrar exatamente os mesmos dados, sem instalar nada e sem pedir nada para ninguém.
+
+Não existe "salvar". Cada saída registrada e cada chegada encerrada já está gravada no momento em que você confirma.
+
+Se você abrir a pasta do sistema, duas coisas merecem atenção:
+
+- **Não apague nada da pasta `dados`.** Em especial um arquivo chamado `controle.db-journal`, que costuma aparecer com tamanho zero. Ele existe justamente para o sistema se recuperar sozinho de uma queda de energia ou de rede, e apagá-lo é o que faria os registros se perderem de verdade.
+- **Os relatórios que você emite** ficam em `relatorios`, organizados por mês. Pode copiar e enviar à vontade.
+
+A única coisa que fica no seu computador é um arquivo de registro de funcionamento, em `%LOCALAPPDATA%\ControleVeiculos\app.log`. Ele não contém dado de viagem nenhum, e serve para o suporte entender o que aconteceu quando algo dá errado. Se precisar pedir ajuda, é esse arquivo que vale enviar junto.
 
 ## Quando alguma coisa dá errado
 
