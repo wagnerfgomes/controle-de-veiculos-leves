@@ -1,0 +1,79 @@
+name: Build Windows
+
+# O executável de entrega tem de ser compilado no Windows, porque o alvo é
+# WebView2. Este fluxo faz isso no runner do GitHub e devolve o pacote pronto,
+# sem exigir máquina Windows nenhuma do lado de cá.
+
+on:
+  workflow_dispatch: # botão "Run workflow" na aba Actions
+  push:
+    tags:
+      - "v*" # uma tag v1.0.0 também gera, e publica em Releases
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Instalar dependências do front
+        run: npm ci
+
+      - name: Conferir tipos e testes antes de gerar o executável
+        run: |
+          npx tsc --noEmit
+          cargo test --manifest-path src-tauri/Cargo.toml
+
+      # --no-bundle de propósito: o modelo do projeto é o .exe solto na pasta
+      # de rede, sem instalador e sem instalar nada em máquina nenhuma.
+      - name: Gerar o executável
+        run: npm run tauri build -- --no-bundle
+
+      - name: Montar o pacote para copiar e colar
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path pacote | Out-Null
+
+          $exe = Get-ChildItem src-tauri/target/release/*.exe |
+                 Where-Object { $_.Name -notmatch 'build|deps' } |
+                 Select-Object -First 1
+          if (-not $exe) { throw "executável não encontrado em src-tauri/target/release" }
+
+          Copy-Item $exe.FullName pacote/ControleVeiculos.exe
+          Copy-Item config.toml.exemplo pacote/config.toml
+          Copy-Item TUTORIAL.md pacote/
+
+          # Hash para conferir que o arquivo chegou íntegro do outro lado.
+          Get-FileHash pacote/ControleVeiculos.exe -Algorithm SHA256 |
+            Select-Object -ExpandProperty Hash |
+            Out-File pacote/ControleVeiculos.exe.sha256 -Encoding ascii
+
+          Write-Host "Pacote montado:"
+          Get-ChildItem pacote | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ControleVeiculos-windows
+          path: pacote/
+          if-no-files-found: error
+
+      - name: Publicar em Releases quando for uma tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            pacote/ControleVeiculos.exe
+            pacote/ControleVeiculos.exe.sha256
+            pacote/config.toml
