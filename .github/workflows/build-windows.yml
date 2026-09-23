@@ -53,7 +53,7 @@ jobs:
 
           Copy-Item $exe.FullName pacote/ControleVeiculos.exe
           Copy-Item config.toml.exemplo pacote/config.toml
-          Copy-Item TUTORIAL.md pacote/
+          Copy-Item README.md pacote/
 
           # Hash para conferir que o arquivo chegou íntegro do outro lado.
           Get-FileHash pacote/ControleVeiculos.exe -Algorithm SHA256 |

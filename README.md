@@ -1,4 +1,19 @@
-# Tutorial
+# Controle de Veículos Leves
+
+Aplicação desktop que controla saída e retorno de veículos leves do setor de Logística da usina. Substitui um HTML monolítico de 7.454 linhas onde os dados viviam num array JavaScript dentro do próprio arquivo.
+
+**Tauri 2, React, SQLite.** Roda de um `.exe` numa pasta de rede Windows, com o banco ao lado dele e um usuário por vez. Sem servidor, sem instalador, sem nada gravado na máquina do usuário além do log.
+
+```bash
+npm install
+npm run build:demo    # gera a demonstração (Linux ou Windows)
+npm run build:exe     # gera o executável de entrega (só no Windows)
+npm run verificar     # tipos, clippy e a suíte de testes
+```
+
+O executável de entrega também sai pronto pelo GitHub Actions, sem precisar de máquina Windows. Veja [Parte 1](#parte-1-para-quem-desenvolve).
+
+---
 
 Três partes, três públicos:
 
@@ -159,7 +174,7 @@ Se aparecer um arquivo `sonda.db-journal` ao lado do banco, **não apague**. É 
 
 ```
 CLAUDE.md               as cinco restrições, as convenções e as armadilhas
-TUTORIAL.md             este arquivo
+README.md               este arquivo
 config.toml.exemplo     modelo do config que fica ao lado do .exe
 docs/SPEC.md            contrato de implementação completo
 docs/PLANO.md           ordem de execução em fases
